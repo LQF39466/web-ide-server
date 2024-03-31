@@ -10,10 +10,10 @@ const env = process.env
 const {v4: uuidv4} = require('uuid');
 
 
-// Create an empty JSON file on the disk
-const createEmptyJson = async (filePath) => {
+const saveProjectList = async (projectList) => {
+    const defaultProjectListPath = path.resolve(__dirname, env.DATA_FOLDER, env.PROJECT_LIST_NAME)
     try {
-        await fs.appendFile(filePath, JSON.stringify([]))
+        await fs.writeFile(defaultProjectListPath, JSON.stringify(projectList))
     } catch (err) {
         console.log(err)
     }
@@ -27,15 +27,16 @@ const projectInit = async () => {
         projectListHandel = await fs.open(defaultProjectListPath)
     } catch (err) {
         if (err.code === 'ENOENT') { //If file does not exist, use empty array as project list
-            await createEmptyJson(defaultProjectListPath)
+            await saveProjectList([])
             return []
         }
     }
     projectList = JSON.parse(await projectListHandel.readFile('utf-8'))
+    await projectListHandel.close()
     if (projectList.length !== 0 && !projectList[0] instanceof ProjectIndex) {   //When parsed JSON does not meet type requirement
         console.log('Locale storage is corrupted, creating new project list...')
         await fs.rm(defaultProjectListPath)
-        await createEmptyJson(defaultProjectListPath)
+        await saveProjectList([])
         return []
     }
     return projectList
@@ -68,9 +69,12 @@ const addFile = async (fileIndex, projectList) => {
     if (!fileIndex.linkToFile(currentTime, currentTime)) return   //Set timestamp and check integrity
     if (fileIndex.fileType === '.c') projectIndex.entrance = fileIndex
     else projectIndex.headers.push(fileIndex)  //If not .c, file would be determined as a header file
+    projectIndex.lastEdit = currentTime //Set project's edit timestamp
     projectIndex.integrityCheck()
+    await saveProjectList(projectList)
 }
 
+//Add a new project, also creates a .c file as entrance
 const addProject = async (projectIndex, projectList) => {
     if (projectList.find(({uid}) => uid === projectIndex.uid) !== undefined) {
         console.log('Project already exist')
@@ -87,17 +91,46 @@ const addProject = async (projectIndex, projectList) => {
     if (!projectIndex.linkToFolder(currentTime, currentTime, mainFile)) return
     projectList.push(projectIndex)
     await addFile(mainFile, projectList)
+    await saveProjectList(projectList)
 }
 
-// const test = async () => {
-//     const pl = await projectInit()
-//     const uid = uuidv4()
-//     const p = new ProjectIndex(uid, 'test1', '1234', 'C')
-//     await addProject(p, pl)
-//     const h1 = new FileIndex(uuidv4(), uid, 'test1', '.h')
-//     const h2 = new FileIndex(uuidv4(), uid, 'test2', '.h')
-//     await addFile(h1, pl)
-//     await addFile(h2, pl)
-// }
-//
-// test()
+const deleteProject = async (uuid, projectList)=> {
+    const projectIndexPos = projectList.findIndex(({uid}) => uid === uuid)
+    if (projectIndexPos === -1) {
+        console.log('Project not exist')
+        return
+    }
+    const projectIndex = projectList[projectIndexPos]
+    projectList.splice(projectIndexPos, 1)  //Delete from memory
+    try {
+        await fs.rm(projectIndex.dirPath, {recursive: true, force: true})   //Delete project files
+    } catch (err) {
+        console.log(err)
+        return
+    }
+    await saveProjectList(projectList)
+}
+
+const deleteFile = async (projectUid, fileUid, projectList) => {
+    const projectIndex = projectList.find(({uid}) => uid === projectUid)
+    if (projectIndex === undefined) {
+        console.log('Project not found')
+        return
+    }
+    const fileIndexPos = projectIndex.headers.findIndex(({uid}) => uid === fileUid)
+    if (fileIndexPos === -1) {
+        console.log('File not found')
+        return
+    }
+    const fileIndex = projectIndex.headers[fileIndexPos]
+    projectIndex.headers.splice(fileIndexPos, 1)    //Delete from memory
+    try {
+        await fs.rm(fileIndex.filePath)
+    } catch (err) {
+        console.log(err)
+        return
+    }
+    await saveProjectList(projectList)
+}
+
+module.exports = {projectInit, addFile, addProject, deleteProject, deleteFile}
