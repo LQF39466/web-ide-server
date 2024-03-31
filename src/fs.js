@@ -54,6 +54,10 @@ const addFile = async (fileIndex, projectList) => {
         console.log('Cannot add multiple entrances to a project')
         return
     }
+    if (projectIndex.headers.find(({filePath}) => filePath === fileIndex.filePath) !== undefined) {
+        console.log('File name already exists')
+        return
+    }
 
     //Perform fileIndex related checks
     if (!fileIndex.integrityCheck()) return
