@@ -16,11 +16,13 @@ const saveProjectList = async (projectList) => {
         await fs.writeFile(defaultProjectListPath, JSON.stringify(projectList))
     } catch (err) {
         console.log(err)
+        return false
     }
+    return true
 }
 
 //Read project file from disk and returns a JSON object, if file not exist, create one and return an empty array
-const projectInit = async () => {
+const readProjectList = async () => {
     let projectListHandel, projectList
     const defaultProjectListPath = path.resolve(__dirname, env.DATA_FOLDER, env.PROJECT_LIST_NAME)
     try {
@@ -48,25 +50,25 @@ const addFile = async (fileIndex, projectList) => {
     //Perform project related checks
     if (projectIndex === undefined) {
         console.log('Project not found while adding file')
-        return
+        return false
     }
     if (projectIndex.entrance.linkedToFile === true && fileIndex.fileType === '.c') {    //Ensure only one .c file can be created for any project
         console.log('Cannot add multiple entrances to a project')
-        return
+        return false
     }
     if (projectIndex.headers.find(({filePath}) => filePath === fileIndex.filePath) !== undefined) {
         console.log('File name already exists')
-        return
+        return false
     }
 
     //Perform fileIndex related checks
-    if (!fileIndex.integrityCheck()) return
+    if (!fileIndex.integrityCheck()) return false
 
     try {
         await fs.appendFile(fileIndex.filePath, '')
     } catch (err) {
         console.log(err)
-        return
+        return false
     }
 
     const currentTime = Date.now()
@@ -76,33 +78,34 @@ const addFile = async (fileIndex, projectList) => {
     projectIndex.lastEdit = currentTime //Set project's edit timestamp
     projectIndex.integrityCheck()
     await saveProjectList(projectList)
+    return true
 }
 
 //Add a new project, also creates a .c file as entrance
 const addProject = async (projectIndex, projectList) => {
     if (projectList.find(({uid}) => uid === projectIndex.uid) !== undefined) {
         console.log('Project already exist')
-        return
+        return false
     }
     try {
         await fs.mkdir(projectIndex.dirPath)
     } catch (err) {
         console.log(err)
-        return
+        return false
     }
     const currentTime = Date.now()
     const mainFile = new FileIndex(uuidv4(), projectIndex.uid, 'main', '.c')
-    if (!projectIndex.linkToFolder(currentTime, currentTime, mainFile)) return
+    if (!projectIndex.linkToFolder(currentTime, currentTime, mainFile)) return false
     projectList.push(projectIndex)
-    await addFile(mainFile, projectList)
-    await saveProjectList(projectList)
+    if(!await addFile(mainFile, projectList)) return false
+    return await saveProjectList(projectList)
 }
 
 const deleteProject = async (uuid, projectList)=> {
     const projectIndexPos = projectList.findIndex(({uid}) => uid === uuid)
     if (projectIndexPos === -1) {
         console.log('Project not exist')
-        return
+        return false
     }
     const projectIndex = projectList[projectIndexPos]
     projectList.splice(projectIndexPos, 1)  //Delete from memory
@@ -110,21 +113,21 @@ const deleteProject = async (uuid, projectList)=> {
         await fs.rm(projectIndex.dirPath, {recursive: true, force: true})   //Delete project files
     } catch (err) {
         console.log(err)
-        return
+        return false
     }
-    await saveProjectList(projectList)
+    return await saveProjectList(projectList)
 }
 
 const deleteFile = async (projectUid, fileUid, projectList) => {
     const projectIndex = projectList.find(({uid}) => uid === projectUid)
     if (projectIndex === undefined) {
         console.log('Project not found')
-        return
+        return false
     }
     const fileIndexPos = projectIndex.headers.findIndex(({uid}) => uid === fileUid)
     if (fileIndexPos === -1) {
         console.log('File not found')
-        return
+        return false
     }
     const fileIndex = projectIndex.headers[fileIndexPos]
     projectIndex.headers.splice(fileIndexPos, 1)    //Delete from memory
@@ -132,9 +135,9 @@ const deleteFile = async (projectUid, fileUid, projectList) => {
         await fs.rm(fileIndex.filePath)
     } catch (err) {
         console.log(err)
-        return
+        return false
     }
-    await saveProjectList(projectList)
+    return await saveProjectList(projectList)
 }
 
-module.exports = {projectInit, addFile, addProject, deleteProject, deleteFile}
+module.exports = {readProjectList, addFile, addProject, deleteProject, deleteFile}
