@@ -4,6 +4,8 @@ const { koaBody } = require("koa-body")
 const KoaStatic = require("koa-static")
 const Session = require("koa-session")
 const path = require("path")
+const controller = require('/controllers/controller')
+
 
 const app = new Koa()
 const router = new Router()
@@ -13,7 +15,7 @@ app.use(KoaStatic(staticPath))
 
 app.keys = ["i love hust"]
 
-//配置session
+//Config a session
 const SessionStore = {}
 const CONFIG = {
     key: "koa.sess",
@@ -42,6 +44,7 @@ const CONFIG = {
 }
 app.use(Session(CONFIG, app))
 
+app.use(controller(router)) // Automatically add middlewares in /controllers folder
 app.use(koaBody({ multipart: true }))
 app.use(router.routes()).use(router.allowedMethods())
 app.listen(3001)
