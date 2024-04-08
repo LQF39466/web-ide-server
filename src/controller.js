@@ -1,4 +1,5 @@
 const fs = require('fs')
+const path = require('path')
 
 function addMapping(router, mapping) {
     for (let url in mapping) {
@@ -17,14 +18,14 @@ function addMapping(router, mapping) {
 }
 
 function addControllers(router, dir) {
-    const files = fs.readdirSync(__dirname + dir);
+    const files = fs.readdirSync(path.resolve(__dirname, dir));
     const js_files = files.filter((f) => {
         return f.endsWith('.js');
     });
 
     for (let f of js_files) {
         console.log(`process controller: ${f}...`);
-        let mapping = require(__dirname + '/controllers/' + f);
+        let mapping = require(path.resolve(__dirname, 'controllers', f));
         addMapping(router, mapping);
     }
 }

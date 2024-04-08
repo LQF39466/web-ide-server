@@ -4,13 +4,13 @@ const { koaBody } = require("koa-body")
 const KoaStatic = require("koa-static")
 const Session = require("koa-session")
 const path = require("path")
-const controller = require('/controllers/controller')
+const controller = require('./controller')
 
 
 const app = new Koa()
 const router = new Router()
 
-const staticPath = path.resolve(__dirname, "../dist/static")
+const staticPath = path.resolve(__dirname, "../dist")
 app.use(KoaStatic(staticPath))
 
 app.keys = ["i love hust"]
