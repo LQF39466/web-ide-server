@@ -1,6 +1,6 @@
 const Koa = require("koa")
 const Router = require("koa-router")
-const { koaBody } = require("koa-body")
+const {koaBody} = require("koa-body")
 const KoaStatic = require("koa-static")
 const Session = require("koa-session")
 const path = require("path")
@@ -44,7 +44,9 @@ const CONFIG = {
 }
 app.use(Session(CONFIG, app))
 
+app.use(koaBody({multipart: true}))   //Must put body parser in front of router registration
+
 app.use(controller(router)) // Automatically add middlewares in /controllers folder
-app.use(koaBody({ multipart: true }))
-app.use(router.routes()).use(router.allowedMethods())
+app.use(router.routes())
+app.use(router.allowedMethods())
 app.listen(3001)
