@@ -24,19 +24,6 @@ class ProjectIndex {
         this.headers = undefined      //Array of header files, filetype must be .h
     }
 
-    toJSON() {
-        return {
-            uid: this.uid,
-            title: this.title,
-            details: this.details,
-            languageType: this.languageType,
-            createTime: this.createTime,
-            lastEdit: this.lastEdit,
-            entrance: this.entrance.toJSON(),
-            headers: this.headers.map((e) => e.toJSON())
-        }
-    }
-
     // Check all data fields
     integrityCheck() {
         if (typeof this.uid !== 'string' ||
@@ -93,17 +80,6 @@ class FileIndex {
         // Must-have attributes only when linkedToFile flag is set to true
         this.createTime = undefined
         this.lastEdit = undefined
-    }
-
-    toJSON() {
-        return {
-            uid: this.uid,
-            projectUid: this.projectUid,
-            title: this.title,
-            fileType: this.fileType,
-            createTime: this.createTime,
-            lastEdit: this.lastEdit
-        }
     }
 
     //Check must-have data fields
