@@ -76,7 +76,7 @@ const addFile = async (fileIndex, projectList) => {
     if (fileIndex.fileType === '.c') projectIndex.entrance = fileIndex
     else projectIndex.headers.push(fileIndex)  //If not .c, file would be determined as a header file
     projectIndex.lastEdit = currentTime //Set project's edit timestamp
-    projectIndex.integrityCheck()
+    console.log(projectIndex)
     await saveProjectList(projectList)
     return true
 }
