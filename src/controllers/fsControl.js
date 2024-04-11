@@ -50,7 +50,7 @@ const deleteFileController = async (ctx) => {
     const fileInfo = ctx.request.body
     if (fileInfo !== undefined) {
         const projectList = await readProjectList()
-        if(await deleteFile(fileInfo.projectUid, fileInfo.uid, projectList))
+        if (await deleteFile(fileInfo.projectUid, fileInfo.uid, projectList))
             ctx.body = {code: 0, message: 'File deleted successfully'}
         else ctx.body = {code: -1, message: 'An error has occurred while deleting file'}
     } else ctx.body = {code: -2, message: 'Empty request'}

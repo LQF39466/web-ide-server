@@ -97,11 +97,11 @@ const addProject = async (projectIndex, projectList) => {
     const mainFile = new FileIndex(uuidv4(), projectIndex.uid, 'main', '.c')
     if (!projectIndex.linkToFolder(currentTime, currentTime, mainFile)) return false
     projectList.push(projectIndex)
-    if(!await addFile(mainFile, projectList)) return false
+    if (!await addFile(mainFile, projectList)) return false
     return await saveProjectList(projectList)
 }
 
-const deleteProject = async (uuid, projectList)=> {
+const deleteProject = async (uuid, projectList) => {
     const projectIndexPos = projectList.findIndex(({uid}) => uid === uuid)
     if (projectIndexPos === -1) {
         console.log('Project not exist')

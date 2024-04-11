@@ -92,10 +92,6 @@ class FileIndex {
             console.log('File ' + this.uid + ' has invalid attribute types')
             return false
         }
-        if (this.fileType !== '.c' && this.fileType !== '.h') {
-            console.log('File ' + this.uid + 'has unsupported type')
-            return false
-        }
 
         if (this.linkedToFile) {
             if (typeof this.createTime !== 'number' ||
