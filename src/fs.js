@@ -44,7 +44,8 @@ const readProjectList = async () => {
     return projectList
 }
 
-const addFile = async (fileIndex, projectList) => {
+const addFile = async (fileIndex) => {
+    const projectList = await readProjectList()
     const projectIndex = projectList.find(({uid}) => uid === fileIndex.projectUid)
 
     //Perform project related checks
@@ -82,7 +83,8 @@ const addFile = async (fileIndex, projectList) => {
 }
 
 //Add a new project, also creates a .c file as entrance
-const addProject = async (projectIndex, projectList) => {
+const addProject = async (projectIndex) => {
+    const projectList = await readProjectList()
     if (projectList.find(({uid}) => uid === projectIndex.uid) !== undefined) {
         console.log('Project already exist')
         return false
@@ -101,7 +103,8 @@ const addProject = async (projectIndex, projectList) => {
     return await saveProjectList(projectList)
 }
 
-const deleteProject = async (uuid, projectList) => {
+const deleteProject = async (uuid) => {
+    const projectList = await readProjectList()
     const projectIndexPos = projectList.findIndex(({uid}) => uid === uuid)
     if (projectIndexPos === -1) {
         console.log('Project not exist')
@@ -118,7 +121,8 @@ const deleteProject = async (uuid, projectList) => {
     return await saveProjectList(projectList)
 }
 
-const deleteFile = async (projectUid, fileUid, projectList) => {
+const deleteFile = async (projectUid, fileUid) => {
+    const projectList = await readProjectList()
     const projectIndex = projectList.find(({uid}) => uid === projectUid)
     if (projectIndex === undefined) {
         console.log('Project not found')
@@ -140,4 +144,11 @@ const deleteFile = async (projectUid, fileUid, projectList) => {
     return await saveProjectList(projectList)
 }
 
-module.exports = {readProjectList, addFile, addProject, deleteProject, deleteFile}
+const locateFile = async (projectUid, fileUid) => {
+    const projectList = await readProjectList()
+    const projectIndex = projectList.find(({uid}) => uid === projectUid)
+    const fileIndex = projectIndex.headers.concat([projectIndex.entrance]).find(({uid}) => uid === fileUid)
+    return fileIndex.filePath
+}
+
+module.exports = {readProjectList, addFile, addProject, deleteProject, deleteFile, locateFile}

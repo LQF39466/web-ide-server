@@ -14,8 +14,6 @@ app.use(historyApiFallback({whiteList: ['/api']}));   //Support browser router
 const staticPath = path.resolve(__dirname, "../dist")
 app.use(KoaStatic(staticPath))
 
-app.keys = ["i love hust"]
-
 app.use(koaBody({multipart: true}))   //Must put body parser in front of router registration
 
 app.use(controller(router)) // Automatically add middlewares in /controllers folder
