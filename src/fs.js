@@ -151,4 +151,15 @@ const locateFile = async (projectUid, fileUid) => {
     return fileIndex.filePath
 }
 
-module.exports = {readProjectList, addFile, addProject, deleteProject, deleteFile, locateFile}
+const saveFile = async (projectUid, fileUid, fileContent) => {
+    const filePath = await locateFile(projectUid, fileUid)
+    try {
+        await fs.writeFile(filePath, fileContent)
+    } catch (err) {
+        console.log(err)
+        return false
+    }
+    return true
+}
+
+module.exports = {readProjectList, addFile, addProject, deleteProject, deleteFile, locateFile, saveFile}

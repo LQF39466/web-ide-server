@@ -1,4 +1,4 @@
-const {readProjectList, addProject, deleteProject, deleteFile, addFile, locateFile} = require('../fs')
+const {readProjectList, addProject, deleteProject, deleteFile, addFile, locateFile, saveFile} = require('../fs')
 const {ProjectIndex, FileIndex} = require('../types')
 const {v4: uuidv4} = require('uuid');
 const send = require('koa-send')
@@ -62,11 +62,21 @@ const sendFileController = async (ctx) => {
     }
 }
 
+const saveFileController = async (ctx) => {
+    const fileContent = ctx.request.body
+    if (fileContent !== undefined) {
+        if(await saveFile(fileContent.projectUid, fileContent.uid, fileContent.content))
+            ctx.body = {code: 0, message: 'File saved successfully'}
+        else ctx.body = {code: -1, message: 'An error has occurred while saving file'}
+    } else ctx.body = {code: -2, message: 'Empty request'}
+}
+
 module.exports = {
     'GET /api/getProjectList': projectListController,
     'POST /api/addProject': addProjectController,
     'POST /api/deleteProject': deleteProjectController,
     'POST /api/addFile': addFileController,
     'POST /api/deleteFile': deleteFileController,
-    'POST /api/getFile': sendFileController
+    'POST /api/getFile': sendFileController,
+    'POST /api/saveFile': saveFileController,
 }
