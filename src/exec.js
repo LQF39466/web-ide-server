@@ -8,10 +8,9 @@ const runCompile = async (projectUid) => {
     try {
         execSync('clang ' + fileTitle + '.c' + ' -o ' + fileTitle + '.exe', {cwd: projectIndex.dirPath})
     } catch (e) {
-        console.error(e)
         return {
             result: false,
-            stdout: ''
+            stdout: e
         }
     }
     const stdout = runExecutable(projectIndex)
@@ -26,8 +25,7 @@ const runExecutable = (projectIndex) => {
     try {
         return execFileSync(fileTitle, {cwd: projectIndex.dirPath}).toString()
     } catch (e) {
-        console.error(e)
-        return undefined
+        return e
     }
 }
 
