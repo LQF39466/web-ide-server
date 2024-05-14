@@ -44,8 +44,8 @@ const readProjectList = async () => {
     return projectList
 }
 
-const addFile = async (fileIndex) => {
-    const projectList = await readProjectList()
+const addFile = async (fileIndex, optionalProjectList) => {
+    const projectList = optionalProjectList ? optionalProjectList : await readProjectList()
     const projectIndex = projectList.find(({uid}) => uid === fileIndex.projectUid)
 
     //Perform project related checks
