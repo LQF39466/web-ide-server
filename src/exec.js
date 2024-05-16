@@ -13,19 +13,23 @@ const runCompile = async (projectUid) => {
             stdout: e
         }
     }
-    const stdout = runExecutable(projectIndex)
-    return {
-        result: true,
-        stdout: stdout
-    }
+    return runExecutable(projectIndex)
 }
 
 const runExecutable = (projectIndex) => {
     const fileTitle = projectIndex.entrance.title + '.exe'
+    let result
     try {
-        return execFileSync(fileTitle, {cwd: projectIndex.dirPath}).toString()
+         result = execFileSync(fileTitle, {cwd: projectIndex.dirPath}).toString()
     } catch (e) {
-        return e
+        return {
+            result: false,
+            stdout: e
+        }
+    }
+    return {
+        result: true,
+        stdout: result
     }
 }
 
