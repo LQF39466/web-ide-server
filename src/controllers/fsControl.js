@@ -37,7 +37,7 @@ const deleteProjectController = async (ctx) => {
 const addFileController = async (ctx) => {
     const fileInfo = ctx.request.body
     if (fileInfo !== undefined) {
-        const fileIndex = new FileIndex(fileInfo.uid, fileInfo.projectUid, fileInfo.title, fileInfo.fileType)
+        const fileIndex = new FileIndex(uuidv4(), fileInfo.projectUid, fileInfo.title, fileInfo.fileType)
         if (await addFile(fileIndex, undefined))
             ctx.body = {code: 0, message: 'File added successfully'}
         else ctx.body = {code: -1, message: 'An error has occurred while adding file'}
