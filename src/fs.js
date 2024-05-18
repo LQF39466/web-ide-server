@@ -74,8 +74,9 @@ const addFile = async (fileIndex, optionalProjectList) => {
 
     const currentTime = Date.now()
     if (!fileIndex.linkToFile(currentTime, currentTime)) return   //Set timestamp and check integrity
-    if (fileIndex.fileType === '.c') projectIndex.entrance = fileIndex
-    else projectIndex.headers.push(fileIndex)  //If not .c, file would be determined as a header file
+    if (fileIndex.fileType === '.h') projectIndex.headers.push(fileIndex)
+    else if (fileIndex.fileType === '.c') projectIndex.entrance = fileIndex
+    else projectIndex.textFiles.push(fileIndex)  //If not .txt, file would be determined as a header file
     projectIndex.lastEdit = currentTime //Set project's edit timestamp
     console.log(projectIndex)
     await saveProjectList(projectList)
@@ -147,7 +148,7 @@ const deleteFile = async (projectUid, fileUid) => {
 const locateFile = async (projectUid, fileUid) => {
     const projectList = await readProjectList()
     const projectIndex = projectList.find(({uid}) => uid === projectUid)
-    const fileIndex = projectIndex.headers.concat([projectIndex.entrance]).find(({uid}) => uid === fileUid)
+    const fileIndex = projectIndex.headers.concat([projectIndex.entrance], projectIndex.textFiles).find(({uid}) => uid === fileUid)
     return fileIndex.filePath
 }
 

@@ -4,8 +4,7 @@ const {v4: uuidv4} = require('uuid');
 const send = require('koa-send')
 
 //Only include necessary data fields while stringify object for transmission
-const projectIndexSerialize = ['uid', 'title', 'details', 'languageType', 'createTime', 'lastEdit', 'entrance', 'headers']
-const fileIndexSerialize = ['uid', 'projectUid', 'title', 'fileType', 'createTime', 'lastEdit']
+const projectIndexSerialize = ['uid', 'title', 'details', 'languageType', 'createTime', 'lastEdit', 'entrance', 'headers', 'textFiles', 'projectUid', 'fileType']
 
 const projectListController = async (ctx) => {
     const projectList = await readProjectList()

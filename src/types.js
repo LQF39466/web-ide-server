@@ -22,6 +22,7 @@ class ProjectIndex {
         this.lastEdit = undefined
         this.entrance = undefined    //File index of code entrance, filetype must be .c
         this.headers = undefined      //Array of header files, filetype must be .h
+        this.textFiles = undefined    //Array of text files, filetype must be .txt
     }
 
     // Check all data fields
@@ -63,6 +64,7 @@ class ProjectIndex {
         this.lastEdit = lastEdit
         this.entrance = entrance
         this.headers = []
+        this.textFiles = []
         return this.integrityCheck()
     }
 }
